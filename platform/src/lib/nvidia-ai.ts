@@ -133,9 +133,9 @@ export class NvidiaAIService {
   ): Promise<string> {
     const model = getModelForCategory(agentContext.category);
     
-    const systemPrompt = `You are ${agentContext.name}, an AI agent specialized in ${agentContext.category}.
-Your capabilities include: ${agentContext.capabilities.join(", ")}.
-Always be helpful, professional, and provide actionable insights.`;
+    const systemPrompt = `Du bist ${agentContext.name}, ein KI-Assistent spezialisiert auf ${agentContext.category}.
+Deine Fähigkeiten umfassen: ${agentContext.capabilities.join(", ")}.
+Antworte immer hilfreich, professionell und liefere umsetzbare Empfehlungen.`;
 
     const messages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
@@ -144,7 +144,7 @@ Always be helpful, professional, and provide actionable insights.`;
     ];
 
     const response = await this.chat(messages, { model });
-    return response.choices[0]?.message?.content || "I'm sorry, I couldn't process that request.";
+    return response.choices[0]?.message?.content || "Entschuldigung, ich konnte diese Anfrage nicht verarbeiten.";
   }
 
   async generateEmbeddings(text: string): Promise<number[]> {

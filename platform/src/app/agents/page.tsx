@@ -5,33 +5,14 @@ import { motion } from "framer-motion";
 import { AgentGrid } from "@/components/agents/agent-grid";
 import { AgentFilters } from "@/components/agents/agent-filters";
 import { Badge } from "@/components/ui/badge";
-import { Agent } from "@/types";
-
-// Sample agents data (in production, this would come from an API)
-const allAgents: Agent[] = [
-  // Support
-  // Sales
-  // Engineering
-  // Design
-  // Finance
-  // Specialized
-];
-
-const categories = [
-  { id: "support", name: "Support", count: 2 },
-  { id: "sales", name: "Sales", count: 3 },
-  { id: "engineering", name: "Engineering", count: 4 },
-  { id: "design", name: "Design", count: 3 },
-  { id: "finance", name: "Finance", count: 2 },
-  { id: "specialized", name: "Specialized", count: 4 },
-];
+import { agentsData, categories } from "@/lib/agents-data";
 
 export default function AgentsPage() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredAgents = useMemo(() => {
-    return allAgents.filter((agent) => {
+    return agentsData.filter((agent) => {
       const matchesCategory = !selectedCategory || agent.category === selectedCategory;
       const matchesSearch = !searchQuery || 
         agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -55,12 +36,12 @@ export default function AgentsPage() {
           className="max-w-2xl"
         >
           <Badge variant="secondary" className="mb-4">
-            {allAgents.length} Agents Available
+            {agentsData.length} KI-Assistenten verfügbar
           </Badge>
-          <h1 className="heading-section mb-4">Agent Library</h1>
+          <h1 className="heading-section mb-4">Agenten-Bibliothek</h1>
           <p className="body-large">
-            Browse and discover specialized agents for every business need. 
-            Try them free, then deploy in your workflow.
+            Entdecken Sie spezialisierte KI-Agenten für jeden Geschäftsbedarf. 
+            Testen Sie kostenlos und integrieren Sie sie in Ihre Arbeitsabläufe.
           </p>
         </motion.div>
       </div>
@@ -68,7 +49,7 @@ export default function AgentsPage() {
       {/* Filters */}
       <div className="container-custom px-6 mb-12">
         <AgentFilters
-          categories={categories}
+          categories={categories.map(c => ({ id: c.slug, name: c.name, count: c.agentCount }))}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}
           searchQuery={searchQuery}
@@ -82,9 +63,9 @@ export default function AgentsPage() {
         {filteredAgents.length > 0 ? (
           <>
             <p className="text-sm text-white/60 mb-6">
-              Showing {filteredAgents.length} agent{filteredAgents.length !== 1 ? "s" : ""}
-              {selectedCategory && ` in ${categories.find(c => c.id === selectedCategory)?.name}`}
-              {searchQuery && ` matching "${searchQuery}"`}
+              Zeige {filteredAgents.length} Agent{filteredAgents.length !== 1 ? "en" : ""}
+              {selectedCategory && ` in ${categories.find(c => c.slug === selectedCategory)?.name}`}
+              {searchQuery && ` passend zu "${searchQuery}"`}
             </p>
             <AgentGrid agents={filteredAgents} columns={4} />
           </>
@@ -95,15 +76,15 @@ export default function AgentsPage() {
             className="text-center py-20"
           >
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="heading-subsection mb-2">No agents found</h3>
+            <h3 className="heading-subsection mb-2">Keine Agenten gefunden</h3>
             <p className="body-default mb-6">
-              Try adjusting your filters or search query.
+              Versuchen Sie, Ihre Filter oder Suchanfrage anzupassen.
             </p>
             <button
               onClick={clearFilters}
               className="text-primary-light hover:underline"
             >
-              Clear all filters
+              Alle Filter löschen
             </button>
           </motion.div>
         )}

@@ -8,130 +8,56 @@ import { AgentCard } from "@/components/agents/agent-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Agent } from "@/types";
+import { agentsData, categories } from "@/lib/agents-data";
 
-// Sample featured agents
-const featuredAgents: Agent[] = [
-  {
-    id: "1",
-    slug: "support-responder",
-    name: "Support Responder",
-    description: "Intelligent customer support agent that handles inquiries with empathy and accuracy.",
-    category: "support",
-    rating: 4.9,
-    usageCount: 15420,
-    isNew: false,
-    isFeatured: true,
-  },
-  {
-    id: "2",
-    slug: "sales-engineer",
-    name: "Sales Engineer",
-    description: "AI-powered sales assistant that qualifies leads and schedules demos.",
-    category: "sales",
-    rating: 4.8,
-    usageCount: 12350,
-    isNew: true,
-    isFeatured: true,
-  },
-  {
-    id: "3",
-    slug: "code-reviewer",
-    name: "Code Reviewer",
-    description: "Automated code quality analysis with security and performance insights.",
-    category: "engineering",
-    rating: 4.7,
-    usageCount: 8900,
-    isNew: false,
-    isFeatured: true,
-  },
-  {
-    id: "4",
-    slug: "ui-designer",
-    name: "UI Designer",
-    description: "Creative design agent that generates beautiful user interfaces.",
-    category: "design",
-    rating: 4.9,
-    usageCount: 6700,
-    isNew: true,
-    isFeatured: true,
-  },
-  {
-    id: "5",
-    slug: "financial-analyst",
-    name: "Financial Analyst",
-    description: "Data-driven financial analysis and reporting agent.",
-    category: "finance",
-    rating: 4.6,
-    usageCount: 4500,
-    isNew: false,
-    isFeatured: true,
-  },
-  {
-    id: "6",
-    slug: "document-generator",
-    name: "Document Generator",
-    description: "Automated document creation from templates and data sources.",
-    category: "specialized",
-    rating: 4.8,
-    usageCount: 21000,
-    isNew: false,
-    isFeatured: true,
-  },
-];
+// Zeige die ersten 12 Agenten als Featured
+const featuredAgents = agentsData.slice(0, 12);
 
-const categories = [
-  { name: "Support", icon: "🎧", count: 12, color: "cyan" },
-  { name: "Sales", icon: "💼", count: 18, color: "green" },
-  { name: "Engineering", icon: "⚙️", count: 45, color: "primary" },
-  { name: "Design", icon: "🎨", count: 15, color: "secondary" },
-  { name: "Finance", icon: "💰", count: 8, color: "amber" },
-  { name: "Security", icon: "🔒", count: 10, color: "red" },
-];
+const categoriesDisplay = categories.slice(0, 6);
 
 const features = [
   {
     icon: <Zap className="w-6 h-6" />,
-    title: "Lightning Fast",
-    description: "Powered by OpenHands for rapid execution and instant results.",
+    title: "Blitzschnell",
+    description: "Angetrieben von OpenHands für schnelle Ausführung und sofortige Ergebnisse.",
   },
   {
     icon: <Shield className="w-6 h-6" />,
-    title: "Enterprise Security",
-    description: "Bank-grade encryption and compliance with GDPR, SOC2, and more.",
+    title: "Enterprise-Sicherheit",
+    description: "Bank-grade Verschlüsselung und DSGVO/SOC2-Konformität.",
   },
   {
     icon: <BookOpen className="w-6 h-6" />,
-    title: "Knowledge Integration",
-    description: "Connect your docs, databases, and APIs to power intelligent responses.",
+    title: "Wissensintegration",
+    description: "Verbinden Sie Ihre Dokumente, Datenbanken und APIs.",
   },
   {
     icon: <Code2 className="w-6 h-6" />,
-    title: "Easy Integration",
-    description: "REST API and webhooks for seamless integration into your stack.",
+    title: "Einfache Integration",
+    description: "REST API und Webhooks für nahtlose Integration.",
   },
 ];
 
 const stats = [
-  { label: "Active Agents", value: "140+", icon: <Zap className="w-5 h-5" /> },
-  { label: "Companies", value: "500+", icon: <Users className="w-5 h-5" /> },
-  { label: "Tasks Completed", value: "2M+", icon: <TrendingUp className="w-5 h-5" /> },
-  { label: "Uptime", value: "99.9%", icon: <Shield className="w-5 h-5" /> },
+  { label: "Aktive Agenten", value: "100+", icon: <Zap className="w-5 h-5" /> },
+  { label: "Unternehmen", value: "500+", icon: <Users className="w-5 h-5" /> },
+  { label: "Abgeschlossene Aufgaben", value: "2M+", icon: <TrendingUp className="w-5 h-5" /> },
+  { label: "Verfügbarkeit", value: "99.9%", icon: <Shield className="w-5 h-5" /> },
 ];
 
 const testimonials = [
   {
-    quote: "Agency Agents transformed our customer support. Response times dropped 80%.",
+    quote: "Agency Agents hat unseren Kundenservice revolutioniert. Reaktionszeiten um 80% reduziert.",
     author: "Sarah Chen",
-    role: "VP of Operations, TechCorp",
+    role: "VP Operations, TechCorp",
   },
   {
-    quote: "The Sales Engineer agent doubled our qualified leads in just two months.",
+    quote: "Der Vertriebsagent hat unsere qualifizierten Leads in nur zwei Monaten verdoppelt.",
     author: "Marcus Johnson",
-    role: "Head of Sales, GrowthStartup",
+    role: "Vertriebsleiter, GrowthStartup",
   },
   {
-    quote: "Best investment we've made. The code reviewer catches issues our team misses.",
+    quote: "Beste Investition. Der Code-Prüfer findet Fehler, die unser Team übersieht.",
     author: "Elena Rodriguez",
     role: "CTO, DevStudio",
   },
@@ -176,10 +102,10 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="secondary" className="mb-4">Most Popular</Badge>
+            <Badge variant="secondary" className="mb-4">Am beliebtesten</Badge>
             <h2 className="heading-section mb-4">Featured Agents</h2>
             <p className="body-large max-w-2xl mx-auto">
-              Discover our most popular agents, trusted by thousands of businesses worldwide.
+              Entdecken Sie unsere beliebtesten Agenten, die von tausenden Unternehmen vertraut werden.
             </p>
           </motion.div>
 
@@ -205,7 +131,7 @@ export default function HomePage() {
           >
             <Link href="/agents">
               <Button size="lg" variant="secondary" className="gap-2">
-                View All Agents
+                Alle Agenten anzeigen
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
@@ -222,27 +148,27 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="primary" className="mb-4">Browse by Category</Badge>
-            <h2 className="heading-section mb-4">Find the Perfect Agent</h2>
+            <Badge variant="primary" className="mb-4">Nach Kategorie</Badge>
+            <h2 className="heading-section mb-4">Finden Sie den perfekten Agenten</h2>
             <p className="body-large max-w-2xl mx-auto">
-              Explore our categorized library of specialized agents for every use case.
+              Entdecken Sie unsere kategorisierte Bibliothek spezialisierter Agenten.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((category, index) => (
+            {categoriesDisplay.map((category, index) => (
               <motion.div
-                key={category.name}
+                key={category.slug}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.05 }}
                 viewport={{ once: true }}
               >
-                <Link href={`/agents?category=${category.name.toLowerCase()}`}>
+                <Link href={`/agents?category=${category.slug}`}>
                   <Card hover className="p-6 text-center cursor-pointer">
                     <div className="text-4xl mb-3">{category.icon}</div>
                     <h3 className="font-display font-semibold mb-1">{category.name}</h3>
-                    <p className="text-sm text-white/60">{category.count} agents</p>
+                    <p className="text-sm text-white/60">{category.agentCount} Agenten</p>
                   </Card>
                 </Link>
               </motion.div>
@@ -260,10 +186,10 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge variant="cyan" className="mb-4">Why Choose Us</Badge>
-            <h2 className="heading-section mb-4">Built for the Enterprise</h2>
+            <Badge variant="cyan" className="mb-4">Warum uns wählen</Badge>
+            <h2 className="heading-section mb-4">Für Unternehmen entwickelt</h2>
             <p className="body-large max-w-2xl mx-auto">
-              Everything you need to deploy and manage AI agents at scale.
+              Alles was Sie brauchen, um KI-Agenten im großen Maßstab einzusetzen.
             </p>
           </motion.div>
 
