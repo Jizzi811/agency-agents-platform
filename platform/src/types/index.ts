@@ -6,7 +6,6 @@ export interface Agent {
   longDescription?: string;
   category: string;
   subcategory?: string;
-  price: number;
   rating: number;
   usageCount: number;
   icon?: string;
@@ -17,6 +16,7 @@ export interface Agent {
   author?: string;
   createdAt?: string;
   updatedAt?: string;
+  model?: string;
 }
 
 export interface Category {

@@ -60,11 +60,7 @@ export function AgentCard({ agent, variant = "default" }: AgentCardProps) {
                 )}
               </div>
             </div>
-            <div className="text-right">
-              <span className="font-display text-xl font-bold">
-                {formatPrice(agent.price)}
-              </span>
-            </div>
+            <Badge variant="ai-powered">AI Powered</Badge>
           </div>
 
           {/* Content */}
@@ -102,9 +98,6 @@ export function AgentCard({ agent, variant = "default" }: AgentCardProps) {
                 Try Now
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" className="shrink-0">
-              <ShoppingCart className="w-4 h-4" />
-            </Button>
           </div>
         </div>
 

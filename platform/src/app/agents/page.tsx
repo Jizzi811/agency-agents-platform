@@ -10,29 +10,11 @@ import { Agent } from "@/types";
 // Sample agents data (in production, this would come from an API)
 const allAgents: Agent[] = [
   // Support
-  { id: "1", slug: "support-responder", name: "Support Responder", description: "Intelligent customer support agent that handles inquiries with empathy and accuracy.", category: "support", price: 49, rating: 4.9, usageCount: 15420, isNew: false },
-  { id: "2", slug: "support-analytics", name: "Support Analytics", description: "Analyze support tickets and generate actionable insights.", category: "support", price: 39, rating: 4.7, usageCount: 8900, isNew: true },
   // Sales
-  { id: "3", slug: "sales-engineer", name: "Sales Engineer", description: "AI-powered sales assistant that qualifies leads and schedules demos.", category: "sales", price: 79, rating: 4.8, usageCount: 12350, isNew: true },
-  { id: "4", slug: "sales-coach", name: "Sales Coach", description: "Real-time coaching during sales calls with objection handling tips.", category: "sales", price: 59, rating: 4.6, usageCount: 5600, isNew: false },
-  { id: "5", slug: "outbound-strategist", name: "Outbound Strategist", description: "Build personalized outreach campaigns at scale.", category: "sales", price: 69, rating: 4.7, usageCount: 7200, isNew: false },
   // Engineering
-  { id: "6", slug: "code-reviewer", name: "Code Reviewer", description: "Automated code quality analysis with security and performance insights.", category: "engineering", price: 39, rating: 4.7, usageCount: 8900, isNew: false },
-  { id: "7", slug: "frontend-developer", name: "Frontend Developer", description: "Build responsive web interfaces from specifications.", category: "engineering", price: 89, rating: 4.8, usageCount: 11200, isNew: false },
-  { id: "8", slug: "backend-architect", name: "Backend Architect", description: "Design scalable backend systems and APIs.", category: "engineering", price: 99, rating: 4.9, usageCount: 6500, isNew: false },
-  { id: "9", slug: "devops-automator", name: "DevOps Automator", description: "Automate deployment, CI/CD, and infrastructure management.", category: "engineering", price: 79, rating: 4.8, usageCount: 7800, isNew: true },
   // Design
-  { id: "10", slug: "ui-designer", name: "UI Designer", description: "Creative design agent that generates beautiful user interfaces.", category: "design", price: 59, rating: 4.9, usageCount: 6700, isNew: true },
-  { id: "11", slug: "ux-researcher", name: "UX Researcher", description: "Conduct user research and generate actionable insights.", category: "design", price: 49, rating: 4.6, usageCount: 4300, isNew: false },
-  { id: "12", slug: "brand-guardian", name: "Brand Guardian", description: "Ensure brand consistency across all outputs.", category: "design", price: 45, rating: 4.7, usageCount: 3900, isNew: false },
   // Finance
-  { id: "13", slug: "financial-analyst", name: "Financial Analyst", description: "Data-driven financial analysis and reporting agent.", category: "finance", price: 89, rating: 4.6, usageCount: 4500, isNew: false },
-  { id: "14", slug: "bookkeeper", name: "Bookkeeper", description: "Automated bookkeeping and transaction categorization.", category: "finance", price: 59, rating: 4.8, usageCount: 5200, isNew: false },
   // Specialized
-  { id: "15", slug: "document-generator", name: "Document Generator", description: "Automated document creation from templates and data sources.", category: "specialized", price: 29, rating: 4.8, usageCount: 21000, isNew: false },
-  { id: "16", slug: "workflow-architect", name: "Workflow Architect", description: "Design and optimize business workflows.", category: "specialized", price: 79, rating: 4.7, usageCount: 3800, isNew: true },
-  { id: "17", slug: "legal-doc-review", name: "Legal Document Review", description: "Review and analyze legal documents for compliance.", category: "specialized", price: 99, rating: 4.9, usageCount: 2800, isNew: false },
-  { id: "18", slug: "recruitment-specialist", name: "Recruitment Specialist", description: "Screen resumes and schedule interviews.", category: "specialized", price: 49, rating: 4.7, usageCount: 6100, isNew: false },
 ];
 
 const categories = [

@@ -17,6 +17,7 @@ const badgeVariants = cva(
         new: "bg-gradient-to-r from-primary to-secondary text-white border-0",
         free: "bg-green-500/20 text-green-400 border border-green-500/30",
         premium: "bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0",
+        "ai-powered": "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/30",
       },
     },
     defaultVariants: {

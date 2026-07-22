@@ -9,7 +9,7 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 import { 
-  Star, Users, Play, ShoppingCart, FileText, Zap, 
+  Star, Users, Play, FileText, Zap, 
   Shield, Code, Check, ArrowLeft, Share2, Heart, 
   ChevronRight, ExternalLink
 } from "lucide-react";
@@ -37,7 +37,6 @@ const agentsData: Record<string, Agent> = {
 
 Perfect for businesses looking to reduce response times while maintaining high customer satisfaction.`,
     category: "support",
-    price: 49,
     rating: 4.9,
     usageCount: 15420,
     isNew: false,
@@ -67,7 +66,6 @@ Perfect for businesses looking to reduce response times while maintaining high c
 
 Ideal for B2B companies looking to increase conversion rates and reduce sales cycle length.`,
     category: "sales",
-    price: 79,
     rating: 4.8,
     usageCount: 12350,
     isNew: true,
@@ -97,7 +95,6 @@ Ideal for B2B companies looking to increase conversion rates and reduce sales cy
 
 Perfect for teams wanting to maintain high code quality without slowing down development.`,
     category: "engineering",
-    price: 39,
     rating: 4.7,
     usageCount: 8900,
     isNew: false,
@@ -115,9 +112,6 @@ Perfect for teams wanting to maintain high code quality without slowing down dev
 };
 
 const relatedAgents: Agent[] = [
-  { id: "2", slug: "support-analytics", name: "Support Analytics", description: "Analyze support tickets and generate insights.", category: "support", price: 39, rating: 4.7, usageCount: 8900, isNew: true },
-  { id: "4", slug: "sales-coach", name: "Sales Coach", description: "Real-time coaching during sales calls.", category: "sales", price: 59, rating: 4.6, usageCount: 5600, isNew: false },
-  { id: "7", slug: "frontend-developer", name: "Frontend Developer", description: "Build responsive web interfaces.", category: "engineering", price: 89, rating: 4.8, usageCount: 11200, isNew: false },
 ];
 
 export default function AgentDetailPage({ params }: PageProps) {
@@ -198,10 +192,6 @@ export default function AgentDetailPage({ params }: PageProps) {
                   Try Agent
                 </Button>
               </Link>
-              <Button size="lg" variant="secondary" className="gap-2">
-                <ShoppingCart className="w-5 h-5" />
-                Add to Purchase
-              </Button>
               <Button 
                 size="lg" 
                 variant="ghost"
@@ -308,21 +298,16 @@ export default function AgentDetailPage({ params }: PageProps) {
               animate={{ opacity: 1, x: 0 }}
               className="sticky top-24 space-y-6"
             >
-              {/* Pricing Card */}
+              {/* AI Powered Card */}
               <Card className="p-6">
                 <div className="text-center mb-6">
-                  <span className="font-display text-4xl font-bold">{formatPrice(agent.price)}</span>
-                  <span className="text-white/60">/month</span>
+                  <Badge variant="ai-powered" className="text-sm px-4 py-1">AI Powered</Badge>
                 </div>
                 <Link href={`/agents/${agent.slug}/run`}>
                   <Button className="w-full mb-4" size="lg">
-                    Try Free for 14 Days
+                    Try Now - It's Free
                   </Button>
                 </Link>
-                <Button variant="secondary" className="w-full" size="lg">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Add to Cart
-                </Button>
                 <ul className="mt-6 space-y-3 text-sm">
                   <li className="flex items-center gap-2 text-white/70">
                     <Check className="w-4 h-4 text-green-400" />
@@ -379,7 +364,7 @@ export default function AgentDetailPage({ params }: PageProps) {
                           <p className="font-medium text-sm group-hover:text-primary-light transition-colors truncate">
                             {related.name}
                           </p>
-                          <p className="text-xs text-white/60">${related.price}/mo</p>
+                          <p className="text-xs text-white/60">AI Powered</p>
                         </div>
                         <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" />
                       </div>
