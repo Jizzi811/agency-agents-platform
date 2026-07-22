@@ -7,35 +7,61 @@ import { useParams } from "next/navigation";
 import { 
   ArrowLeft, Send, Paperclip, Brain, Settings, 
   X, Upload, FileText, Bot, User, Sparkles,
-  Loader2
+  Loader2, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChatMessage } from "@/types";
+import { getAgentBySlug } from "@/lib/agents-data";
+
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const initialMessages: ChatMessage[] = [
-  {
-    id: "1",
-    role: "assistant",
-    content: "Hello! I'm the Support Responder agent. I can help you with customer inquiries, FAQs, and support ticket management. How can I assist you today?",
-    timestamp: new Date(),
-  },
-];
+// Agent-specific welcome messages in German
+const agentWelcomeMessages: Record<string, string> = {
+  "support-responder": "Hallo! 👋 Ich bin Ihr KI-Kundenservice-Assistent. Ich helfe Ihnen gerne bei Fragen zu Produkten, Bestellungen oder allgemeinen Anliegen. Was kann ich für Sie tun?",
+  "ticket-classifier": "Willkommen beim Ticket-Klassifizierer! 📝 Geben Sie mir ein Support-Ticket oder eine Problembeschreibung, und ich ordne es der richtigen Kategorie und Priorität zu.",
+  "code-reviewer": "Hallo! Ich bin Ihr Code-Reviewer 🤖 Analysieren wir Ihren Code zusammen! Fügen Sie Ihren Code ein, und ich gebe Ihnen detailliertes Feedback zu Qualität, Sicherheit und Best Practices.",
+  "sales-engineer": "Willkommen! Ich bin Ihr technischer Vertriebspartner 💼 Um Ihnen die besten Lösungen vorzuschlagen, erzählen Sie mir von Ihren Anforderungen!",
+  "financial-analyst": "Guten Tag! Ich bin Ihr Finanzanalyst 📊 Teilen Sie mir Ihre Finanzdaten oder Fragestellungen mit, und ich analysiere sie für Sie.",
+  "seo-optimizer": "SEO optimieren? Ich helfe Ihnen! 🔍 Geben Sie mir Ihre Website-URL oder Keywords, und ich erstelle eine Optimierungsstrategie.",
+  "content-strategist": "Content-Marketing? Gerne! ✍️ Erzählen Sie mir von Ihrem Thema oder Ihrer Branche, und ich entwickle eine Content-Strategie für Sie.",
+  "project-scheduler": "Projekt planen? Ich bin Ihr Projektmanager! 📅 Beschreiben Sie Ihr Projekt, und ich erstelle einen detaillierten Zeitplan mit Meilensteinen.",
+  "contract-generator": "Willkommen beim Vertragsgenerator! 📄 Beschreiben Sie, welchen Vertrag Sie benötigen, und ich erstelle einen Entwurf für Sie.",
+  "default": "Hallo! 👋 Ich bin Ihr KI-Assistent. Stellen Sie mir eine Frage, und ich helfe Ihnen so gut wie möglich!"
+};
 
 export default function AgentRunPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const agent = getAgentBySlug(slug);
+  
+  const getWelcomeMessage = () => {
+    return agentWelcomeMessages[slug] || agentWelcomeMessages.default;
+  };
+
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: "1",
+      role: "assistant",
+      content: getWelcomeMessage(),
+      timestamp: new Date(),
+    },
+  ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showKnowledgePanel, setShowKnowledgePanel] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [activeModel, setActiveModel] = useState<string>("NVIDIA Nemotron-8B");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -60,25 +86,49 @@ export default function AgentRunPage({ params }: PageProps) {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responses = [
-        "I understand your concern. Let me help you with that. Based on the information provided, I would recommend checking our FAQ section first.",
-        "That's a great question! Here's what I found in our knowledge base...",
-        "I've analyzed your request and prepared the following response...",
-        "Thank you for reaching out. I'll create a support ticket for this issue and escalate it to our team.",
-      ];
+    try {
+      // Get all messages for context
+      const conversationHistory = messages.map(m => ({
+        role: m.role === "assistant" ? "assistant" : "user",
+        content: m.content
+      }));
+
+      // Call our API route
+      const response = await fetch("/api/agent-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agentSlug: slug,
+          messages: conversationHistory,
+          apiKey: process.env.NEXT_PUBLIC_NVIDIA_API_KEY || "demo"
+        }),
+      });
+
+      const data = await response.json();
       
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: responses[Math.floor(Math.random() * responses.length)],
+        content: data.response || "Entschuldigung, es ist ein Fehler aufgetreten.",
         timestamp: new Date(),
       };
 
+      if (data.model) {
+        setActiveModel(data.model.replace("nvidia/", "").replace("-chat-4k-sft", "").replace("-v1", ""));
+      }
+
       setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Chat error:", error);
+      setMessages((prev) => [...prev, {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "Entschuldigung, es ist ein Fehler bei der Verbindung zum KI-Service aufgetreten.",
+        timestamp: new Date(),
+      }]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -101,8 +151,13 @@ export default function AgentRunPage({ params }: PageProps) {
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="font-display text-xl font-semibold">Support Responder</h1>
-              <p className="text-sm text-white/60">AI-powered customer support</p>
+              <h1 className="font-display text-xl font-semibold">{agent?.name || "KI-Assistent"}</h1>
+              <div className="flex items-center gap-2">
+                <Badge variant="ai-powered" className="text-xs">AI Powered</Badge>
+                <span className="text-xs text-white/40 flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> {activeModel}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -113,7 +168,7 @@ export default function AgentRunPage({ params }: PageProps) {
               className="gap-2"
             >
               <Brain className="w-4 h-4" />
-              Knowledge
+              Wissen
               {files.length > 0 && (
                 <Badge variant="primary" className="ml-1">{files.length}</Badge>
               )}
@@ -152,7 +207,7 @@ export default function AgentRunPage({ params }: PageProps) {
                           <Bot className="w-4 h-4" />
                         )}
                       </div>
-                      <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      <div className={`max-w-[80%] rounded-2xl px-4 py-3 whitespace-pre-wrap ${
                         message.role === "user"
                           ? "bg-primary/20 text-white"
                           : "bg-white/5 text-white/90"
@@ -175,7 +230,7 @@ export default function AgentRunPage({ params }: PageProps) {
                     <div className="bg-white/5 rounded-2xl px-4 py-3">
                       <div className="flex items-center gap-2 text-white/60">
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Thinking...
+                        Denke nach...
                       </div>
                     </div>
                   </motion.div>
@@ -210,7 +265,7 @@ export default function AgentRunPage({ params }: PageProps) {
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Type your message..."
+                      placeholder="Nachricht eingeben..."
                       className="w-full"
                     />
                   </div>
@@ -223,7 +278,7 @@ export default function AgentRunPage({ params }: PageProps) {
                   </Button>
                 </div>
                 <p className="text-xs text-white/40 mt-2 text-center">
-                  Press Enter to send, Shift+Enter for new line
+                  Enter zum Senden, Shift+Enter für neue Zeile
                 </p>
               </div>
             </Card>
@@ -242,7 +297,7 @@ export default function AgentRunPage({ params }: PageProps) {
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-display font-semibold flex items-center gap-2">
                         <Brain className="w-5 h-5 text-primary-light" />
-                        Knowledge Base
+                        Wissensdatenbank
                       </h3>
                       <button 
                         onClick={() => setShowKnowledgePanel(false)}
@@ -254,14 +309,14 @@ export default function AgentRunPage({ params }: PageProps) {
                     
                     {/* File Upload */}
                     <div className="mb-6">
-                      <h4 className="text-sm font-medium mb-2 text-white/70">Upload Files</h4>
+                      <h4 className="text-sm font-medium mb-2 text-white/70">Dateien hochladen</h4>
                       <div className="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
                         <Upload className="w-8 h-8 mx-auto mb-2 text-white/40" />
                         <p className="text-sm text-white/60">
-                          Drop files here or click to upload
+                          Dateien hier ablegen oder klicken
                         </p>
                         <p className="text-xs text-white/40 mt-1">
-                          PDF, DOCX, TXT supported
+                          PDF, DOCX, TXT unterstützt
                         </p>
                         <input 
                           type="file" 
@@ -279,21 +334,21 @@ export default function AgentRunPage({ params }: PageProps) {
 
                     {/* Connected Knowledge */}
                     <div className="mb-6">
-                      <h4 className="text-sm font-medium mb-2 text-white/70">Connected Sources</h4>
+                      <h4 className="text-sm font-medium mb-2 text-white/70">Verbundene Quellen</h4>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                           <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-white/40" />
-                            <span className="text-sm">Product Docs</span>
+                            <span className="text-sm">Produkt-Dokumente</span>
                           </div>
-                          <Badge variant="green">Active</Badge>
+                          <Badge variant="green">Aktiv</Badge>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5">
                           <div className="flex items-center gap-2">
                             <FileText className="w-4 h-4 text-white/40" />
-                            <span className="text-sm">FAQ Database</span>
+                            <span className="text-sm">FAQ-Datenbank</span>
                           </div>
-                          <Badge variant="green">Active</Badge>
+                          <Badge variant="green">Aktiv</Badge>
                         </div>
                       </div>
                     </div>
@@ -301,7 +356,7 @@ export default function AgentRunPage({ params }: PageProps) {
                     {/* Add Source */}
                     <Button variant="secondary" className="w-full gap-2">
                       <Sparkles className="w-4 h-4" />
-                      Connect New Source
+                      Neue Quelle verbinden
                     </Button>
                   </Card>
                 </motion.div>
@@ -311,23 +366,23 @@ export default function AgentRunPage({ params }: PageProps) {
             {/* Default Sidebar */}
             {!showKnowledgePanel && (
               <Card className="p-6">
-                <h3 className="font-display font-semibold mb-4">Quick Tips</h3>
+                <h3 className="font-display font-semibold mb-4">Tipps</h3>
                 <ul className="space-y-3 text-sm text-white/60">
                   <li className="flex items-start gap-2">
                     <span className="text-primary-light">•</span>
-                    Be specific in your questions
+                    Seien Sie spezifisch in Ihren Fragen
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary-light">•</span>
-                    Upload relevant documents
+                    Laden Sie relevante Dokumente hoch
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary-light">•</span>
-                    Add context for better answers
+                    Geben Sie Kontext für bessere Antworten
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary-light">•</span>
-                    Review responses carefully
+                    Überprüfen Sie Antworten sorgfältig
                   </li>
                 </ul>
               </Card>
