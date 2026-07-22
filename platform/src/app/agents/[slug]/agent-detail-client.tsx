@@ -3,132 +3,128 @@
 import { use, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
 import { 
-  Star, Users, Play, FileText, Zap, 
-  Shield, Code, Check, ArrowLeft, Share2, Heart, 
+  Star, Play, Zap, Check, ArrowLeft, Share2, Heart, 
   ChevronRight, ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Agent } from "@/types";
-import { formatPrice, formatNumber } from "@/lib/utils";
+import { getAgentBySlug, agentsData } from "@/lib/agents-data";
 
-// Sample agent data (in production, fetch from API)
-const agentsData: Record<string, Agent> = {
-  "support-responder": {
-    id: "1",
-    slug: "support-responder",
-    name: "Support Responder",
-    description: "Intelligent customer support agent that handles inquiries with empathy and accuracy. Uses natural language understanding to provide helpful responses, escalate complex issues, and learn from interactions.",
-    longDescription: `The Support Responder agent is designed to handle high-volume customer inquiries with consistent quality and empathy. It can:
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
-• Answer FAQs instantly with accurate information
-• Escalate complex issues to human agents
-• Provide multi-language support
-• Generate support tickets automatically
-• Learn from interactions to improve over time
-
-Perfect for businesses looking to reduce response times while maintaining high customer satisfaction.`,
-    category: "support",
-    rating: 4.9,
-    usageCount: 15420,
-    isNew: false,
-    isFeatured: true,
-    capabilities: [
-      "24/7 availability",
-      "Multi-language support",
-      "Ticket generation",
-      "Escalation management",
-      "Sentiment analysis",
-      "Knowledge base integration",
+// Long descriptions in German for each category
+const categoryLongDescriptions: Record<string, { title: string; features: string[]; perfectFor: string }> = {
+  "customer-support": {
+    title: "Der Kundenservice-Agent ist darauf ausgelegt, hochvolumige Kundenanfragen mit gleichbleibender Qualität und Empathie zu bearbeiten.",
+    features: [
+      "Sofortige Beantwortung von FAQs mit präzisen Informationen",
+      "Eskalation komplexer Probleme an menschliche Agenten",
+      "Mehrsprachiger Support für globale Kunden",
+      "Automatische Support-Ticket-Erstellung",
+      "Lernen aus Interaktionen zur kontinuierlichen Verbesserung"
     ],
-    integrations: ["Zendesk", "Intercom", "Salesforce", "Slack", "API"],
+    perfectFor: "Perfekt für Unternehmen, die Reaktionszeiten reduzieren und gleichzeitig hohe Kundenzufriedenheit aufrechterhalten möchten."
   },
-  "sales-engineer": {
-    id: "3",
-    slug: "sales-engineer",
-    name: "Sales Engineer",
-    description: "AI-powered sales assistant that qualifies leads, schedules demos, and provides real-time call support.",
-    longDescription: `The Sales Engineer agent supercharges your sales team with intelligent automation:
-
-• Lead qualification and scoring
-• Demo scheduling with calendar integration
-• Real-time objection handling during calls
-• Personalized follow-up generation
-• CRM data entry automation
-
-Ideal for B2B companies looking to increase conversion rates and reduce sales cycle length.`,
-    category: "sales",
-    rating: 4.8,
-    usageCount: 12350,
-    isNew: true,
-    isFeatured: true,
-    capabilities: [
-      "Lead qualification",
-      "Demo scheduling",
-      "Call coaching",
-      "Follow-up automation",
-      "CRM sync",
-      "Proposal generation",
+  "sales": {
+    title: "Der Vertriebsagent powered Ihr Vertriebsteam mit intelligenter Automatisierung.",
+    features: [
+      "Lead-Qualifizierung und -Bewertung",
+      "Demo-Terminplanung mit Kalenderintegration",
+      "Echtzeit-Einwandbehandlung während Anrufen",
+      "Personalisierte Follow-up-Generierung",
+      "Automatische CRM-Dateneingabe"
     ],
-    integrations: ["HubSpot", "Salesforce", "Calendly", "Zoom", "Gong"],
+    perfectFor: "Ideal für B2B-Unternehmen, die Konversionsraten erhöhen und die Vertriebszykluslänge reduzieren möchten."
   },
-  "code-reviewer": {
-    id: "6",
-    slug: "code-reviewer",
-    name: "Code Reviewer",
-    description: "Automated code quality analysis with security insights, performance optimization suggestions, and best practice recommendations.",
-    longDescription: `The Code Reviewer agent acts as your first line of defense for code quality:
-
-• Security vulnerability detection
-• Performance bottleneck identification
-• Code style consistency checks
-• Best practice enforcement
-• Automated fix suggestions
-
-Perfect for teams wanting to maintain high code quality without slowing down development.`,
-    category: "engineering",
-    rating: 4.7,
-    usageCount: 8900,
-    isNew: false,
-    isFeatured: true,
-    capabilities: [
-      "Security scanning",
-      "Performance analysis",
-      "Style checking",
-      "Bug detection",
-      "Auto-fix suggestions",
-      "Multi-language support",
+  "engineering": {
+    title: "Der Code-Reviewer agiert als erste Verteidigungslinie für Code-Qualität.",
+    features: [
+      "Erkennung von Sicherheitslücken",
+      "Identifikation von Performance-Flaschenhälsen",
+      "Prüfung der Code-Stil-Konsistenz",
+      "Durchsetzung von Best Practices",
+      "Automatisierte Lösungsvorschläge"
     ],
-    integrations: ["GitHub", "GitLab", "Bitbucket", "Slack", "Jira"],
+    perfectFor: "Perfekt für Teams, die hohe Code-Qualität maintain ohne die Entwicklung zu verlangsamen."
   },
+  "design": {
+    title: "Der Design-Agent hilft Ihnen, schöne und funktionale Benutzeroberflächen zu erstellen.",
+    features: [
+      "Modernes UI-Design mit Barrierefreiheit",
+      "Markenkonsistente Design-Systeme",
+      "Responsive Design für alle Geräte",
+      "Schnelle Prototypen-Erstellung",
+      "Feedback und Verbesserungsvorschläge"
+    ],
+    perfectFor: "Ideal für Designer und Entwickler, die konsistente und ansprechende Interfaces benötigen."
+  },
+  "marketing": {
+    title: "Der Marketing-Agent unterstützt Sie bei der Erstellung und Optimierung von Marketing-Inhalten.",
+    features: [
+      "Content-Strategie und -Planung",
+      "SEO-Optimierung für Suchmaschinen",
+      "Social-Media-Posting und Engagement",
+      "E-Mail-Kampagnen-Erstellung",
+      "Analyse und Interpretation von Marketing-Daten"
+    ],
+    perfectFor: "Perfekt für Marketing-Teams, die effizient hochwertige Inhalte erstellen möchten."
+  },
+  "finance": {
+    title: "Der Finanzanalyst bietet fundierte Finanzanalysen und Empfehlungen.",
+    features: [
+      "Investitionsanalyse und Portfolio-Tracking",
+      "Automatisierte Buchhaltung und Ausgabenverfolgung",
+      "Budgetplanung und -prognose",
+      "Rechnungsstellung und -genehmigung",
+      "Finanzberichterstattung"
+    ],
+    perfectFor: "Ideal für Unternehmen, die ihre Finanzprozesse automatisieren und optimieren möchten."
+  },
+  "default": {
+    title: "Dieser KI-Agent wurde entwickelt, um Sie bei Ihren täglichen Aufgaben zu unterstützen.",
+    features: [
+      "Intelligente Automatisierung wiederkehrender Aufgaben",
+      "Datengestützte Einblicke und Empfehlungen",
+      "Nahtlose Integration in Ihre Workflows",
+      "Kontinuierliches Lernen und Verbesserung",
+      "Skalierbare Lösungen für Unternehmen"
+    ],
+    perfectFor: "Perfekt für Fachleute und Unternehmen, die ihre Produktivität steigern möchten."
+  }
 };
-
-const relatedAgents: Agent[] = [
-];
 
 export default function AgentDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const slug = resolvedParams.slug;
-  const agent = agentsData[slug] || Object.values(agentsData)[0];
+  const agent = getAgentBySlug(slug);
   
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const icon = {
-    support: "🎧",
-    sales: "💼",
-    engineering: "⚙️",
-    design: "🎨",
-    finance: "💰",
-    specialized: "✨",
-  }[agent.category] || "🤖";
+  if (!agent) {
+    return (
+      <div className="min-h-screen pt-24 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="heading-section mb-4">Agent nicht gefunden</h1>
+          <Link href="/agents">
+            <Button>Zurück zu allen Agenten</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Get long description based on category
+  const categoryInfo = categoryLongDescriptions[agent.category] || categoryLongDescriptions.default;
+  
+  // Get related agents from same category
+  const relatedAgents = agentsData
+    .filter(a => a.category === agent.category && a.slug !== agent.slug)
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -144,7 +140,7 @@ export default function AgentDetailPage({ params }: PageProps) {
             className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Agents
+            Zurück zu allen Agenten
           </Link>
         </motion.div>
 
@@ -159,20 +155,22 @@ export default function AgentDetailPage({ params }: PageProps) {
             >
               <div className="flex items-start gap-4 mb-6">
                 <div className="w-20 h-20 rounded-2xl bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center justify-center text-4xl">
-                  {icon}
+                  {agent.icon || "🤖"}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <Badge variant="default" className="capitalize">{agent.category}</Badge>
-                    {agent.isNew && <Badge variant="new">New</Badge>}
-                    {agent.isFeatured && <Badge variant="premium">Featured</Badge>}
+                    <Badge variant="default" className="capitalize">
+                      {agent.category.replace("-", " ")}
+                    </Badge>
+                    {agent.isNew && <Badge variant="new">Neu</Badge>}
+                    {agent.isFeatured && <Badge variant="premium">Empfohlen</Badge>}
                   </div>
                   <h1 className="heading-section mb-2">{agent.name}</h1>
                   <div className="flex items-center gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                       <span className="font-semibold">{agent.rating}</span>
-                      <span className="text-white/60">({formatNumber(agent.usageCount)} uses)</span>
+                      <span className="text-white/60">({agent.usageCount.toLocaleString()} Nutzungen)</span>
                     </div>
                   </div>
                 </div>
@@ -189,7 +187,7 @@ export default function AgentDetailPage({ params }: PageProps) {
               <Link href={`/agents/${agent.slug}/run`}>
                 <Button size="lg" className="gap-2">
                   <Play className="w-5 h-5" />
-                  Try Agent
+                  Jetzt testen
                 </Button>
               </Link>
               <Button 
@@ -208,9 +206,9 @@ export default function AgentDetailPage({ params }: PageProps) {
             {/* Tabs */}
             <Tabs defaultValue="overview" className="mb-8">
               <TabsList className="bg-white/5 border border-white/10">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-                <TabsTrigger value="docs">Documentation</TabsTrigger>
+                <TabsTrigger value="overview">Übersicht</TabsTrigger>
+                <TabsTrigger value="capabilities">Funktionen</TabsTrigger>
+                <TabsTrigger value="docs">Dokumentation</TabsTrigger>
               </TabsList>
               
               <TabsContent value="overview" className="mt-6">
@@ -222,11 +220,15 @@ export default function AgentDetailPage({ params }: PageProps) {
                   <p className="text-lg text-white/80 leading-relaxed mb-6">
                     {agent.description}
                   </p>
-                  {agent.longDescription && (
-                    <div className="whitespace-pre-line text-white/70">
-                      {agent.longDescription}
-                    </div>
-                  )}
+                  <div className="whitespace-pre-line text-white/70">
+                    <p className="font-semibold text-white mb-4">{categoryInfo.title}</p>
+                    
+                    {categoryInfo.features.map((feature, i) => (
+                      <p key={i} className="mb-2">• {feature}</p>
+                    ))}
+                    
+                    <p className="mt-6 text-primary-light">{categoryInfo.perfectFor}</p>
+                  </div>
                 </motion.div>
               </TabsContent>
 
@@ -235,13 +237,13 @@ export default function AgentDetailPage({ params }: PageProps) {
                   <Card className="p-6">
                     <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
                       <Zap className="w-5 h-5 text-primary-light" />
-                      Features
+                      Funktionen
                     </h3>
                     <ul className="space-y-3">
-                      {agent.capabilities?.map((cap, i) => (
+                      {categoryInfo.features.map((feature, i) => (
                         <li key={i} className="flex items-center gap-3 text-white/70">
                           <Check className="w-4 h-4 text-green-400" />
-                          {cap}
+                          {feature}
                         </li>
                       ))}
                     </ul>
@@ -249,10 +251,10 @@ export default function AgentDetailPage({ params }: PageProps) {
                   <Card className="p-6">
                     <h3 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
                       <ExternalLink className="w-5 h-5 text-secondary-light" />
-                      Integrations
+                      Integrationen
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {agent.integrations?.map((int, i) => (
+                      {["Slack", "Teams", "API", "Webhooks", "CRM"].map((int, i) => (
                         <Badge key={i} variant="default">{int}</Badge>
                       ))}
                     </div>
@@ -262,27 +264,27 @@ export default function AgentDetailPage({ params }: PageProps) {
 
               <TabsContent value="docs" className="mt-6">
                 <Card className="p-6">
-                  <h3 className="font-display text-lg font-semibold mb-4">Getting Started</h3>
+                  <h3 className="font-display text-lg font-semibold mb-4">Erste Schritte</h3>
                   <div className="space-y-4 text-white/70">
                     <div className="flex items-start gap-3">
                       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-semibold">1</span>
                       <div>
-                        <p className="font-semibold text-white">Create an account</p>
-                        <p className="text-sm">Sign up and choose a plan that fits your needs.</p>
+                        <p className="font-semibold text-white">Agent testen</p>
+                        <p className="text-sm">Klicken Sie auf "Jetzt testen" und starten Sie eine Konversation.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-semibold">2</span>
                       <div>
-                        <p className="font-semibold text-white">Connect your data</p>
-                        <p className="text-sm">Upload files or connect APIs to power the agent.</p>
+                        <p className="font-semibold text-white">Wissen hinzufügen</p>
+                        <p className="text-sm">Laden Sie Dokumente hoch oder verbinden Sie APIs.</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/20 text-primary-light text-sm font-semibold">3</span>
                       <div>
-                        <p className="font-semibold text-white">Start using</p>
-                        <p className="text-sm">Try the agent free, then deploy when ready.</p>
+                        <p className="font-semibold text-white">In Workflows integrieren</p>
+                        <p className="text-sm">Verbinden Sie den Agenten mit Ihren bestehenden Tools.</p>
                       </div>
                     </div>
                   </div>
@@ -301,77 +303,79 @@ export default function AgentDetailPage({ params }: PageProps) {
               {/* AI Powered Card */}
               <Card className="p-6">
                 <div className="text-center mb-6">
-                  <Badge variant="ai-powered" className="text-sm px-4 py-1">AI Powered</Badge>
+                  <Badge variant="ai-powered" className="text-sm px-4 py-1">KI-gestützt</Badge>
                 </div>
                 <Link href={`/agents/${agent.slug}/run`}>
                   <Button className="w-full mb-4" size="lg">
-                    Try Now - It's Free
+                    Jetzt kostenlos testen
                   </Button>
                 </Link>
                 <ul className="mt-6 space-y-3 text-sm">
                   <li className="flex items-center gap-2 text-white/70">
                     <Check className="w-4 h-4 text-green-400" />
-                    Full feature access
+                    Voller Funktionsumfang
                   </li>
                   <li className="flex items-center gap-2 text-white/70">
                     <Check className="w-4 h-4 text-green-400" />
-                    Priority support
+                    Prioritäts-Support
                   </li>
                   <li className="flex items-center gap-2 text-white/70">
                     <Check className="w-4 h-4 text-green-400" />
-                    Cancel anytime
+                    Jederzeit kündbar
                   </li>
                 </ul>
               </Card>
 
               {/* Quick Info */}
               <Card className="p-6">
-                <h3 className="font-display font-semibold mb-4">Quick Info</h3>
+                <h3 className="font-display font-semibold mb-4">Infos</h3>
                 <dl className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-white/60">Rating</dt>
+                    <dt className="text-white/60">Bewertung</dt>
                     <dd className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                       {agent.rating}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-white/60">Uses</dt>
-                    <dd>{formatNumber(agent.usageCount)}</dd>
+                    <dt className="text-white/60">Nutzungen</dt>
+                    <dd>{agent.usageCount.toLocaleString()}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-white/60">Category</dt>
-                    <dd className="capitalize">{agent.category}</dd>
+                    <dt className="text-white/60">Kategorie</dt>
+                    <dd className="capitalize">{agent.category.replace("-", " ")}</dd>
                   </div>
                 </dl>
               </Card>
 
               {/* Related Agents */}
-              <Card className="p-6">
-                <h3 className="font-display font-semibold mb-4">Related Agents</h3>
-                <div className="space-y-4">
-                  {relatedAgents.slice(0, 3).map((related) => (
-                    <Link 
-                      key={related.id} 
-                      href={`/agents/${related.slug}`}
-                      className="block group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
-                          {icon}
+              {relatedAgents.length > 0 && (
+                <Card className="p-6">
+                  <h3 className="font-display font-semibold mb-4">Ähnliche Agenten</h3>
+                  <div className="space-y-4">
+                    {relatedAgents.map((related) => (
+                      <Link 
+                        key={related.id} 
+                        href={`/agents/${related.slug}`}
+                        className="block group"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
+                            {related.icon || "🤖"}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm group-hover:text-primary-light transition-colors truncate">
+                              {related.name}
+                            </p>
+                            <p className="text-xs text-white/60">KI-gestützt</p>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm group-hover:text-primary-light transition-colors truncate">
-                            {related.name}
-                          </p>
-                          <p className="text-xs text-white/60">AI Powered</p>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" />
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </Card>
+                      </Link>
+                    ))}
+                  </div>
+                </Card>
+              )}
             </motion.div>
           </div>
         </div>
