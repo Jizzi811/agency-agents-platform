@@ -86,3 +86,8 @@ integrations/vibe/agents/
 integrations/vibe/prompts/
 integrations/zcode/agents/
 graphify-out/
+
+# Next.js
+platform/.next/
+platform/out/
+platform/node_modules/

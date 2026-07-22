@@ -1,0 +1,271 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-space-grotesk: 'Space Grotesk', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --font-jetbrains: 'JetBrains Mono', monospace;
+  
+  --color-primary: #6366F1;
+  --color-secondary: #8B5CF6;
+  --color-accent: #A855F7;
+  --color-cyan: #22D3EE;
+  --color-background: #0A0A0F;
+  --color-surface: #12121A;
+  --color-elevated: #1A1A24;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: var(--font-inter);
+  background: var(--color-background);
+  color: #FFFFFF;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection */
+::selection {
+  background: rgba(99, 102, 241, 0.4);
+  color: #FFFFFF;
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Gradient text utility */
+.text-gradient {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #22D3EE 0%, #6366F1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(18, 18, 26, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-hover:hover {
+  background: rgba(18, 18, 26, 0.85);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Glow effects */
+.glow {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 40px rgba(34, 211, 238, 0.3);
+}
+
+.glow-button {
+  position: relative;
+}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(15px);
+  transition: opacity 0.3s ease;
+}
+
+.glow-button:hover::before {
+  opacity: 1;
+}
+
+/* Animated gradient mesh background */
+.gradient-mesh {
+  background: 
+    radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(139, 92, 246, 0.25) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+    var(--color-background);
+  background-size: 100% 100%;
+  animation: mesh-animation 20s ease infinite;
+}
+
+@keyframes mesh-animation {
+  0%, 100% {
+    background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%;
+  }
+  25% {
+    background-position: 5% 10%, 10% 5%, 5% 15%, 10% 10%, 5% 5%;
+  }
+  50% {
+    background-position: 10% 5%, 5% 10%, 10% 10%, 5% 15%, 10% 10%;
+  }
+  75% {
+    background-position: 5% 15%, 10% 10%, 5% 5%, 10% 5%, 5% 15%;
+  }
+}
+
+/* Particle effect */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: particle-rise linear infinite;
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translateY(100vh) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Button base styles */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-secondary text-white;
+    @apply hover:shadow-glow hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  .btn-secondary {
+    @apply bg-white/5 border border-white/10 text-white;
+    @apply hover:bg-white/10 hover:border-white/20;
+  }
+  
+  .btn-ghost {
+    @apply bg-transparent text-white/80;
+    @apply hover:text-white hover:bg-white/5;
+  }
+}
+
+/* Card styles */
+.card {
+  @apply bg-background-surface border border-white/5 rounded-2xl;
+  @apply transition-all duration-300;
+}
+
+.card-hover {
+  @apply hover:border-white/10 hover:shadow-lg hover:-translate-y-1;
+  @apply hover:bg-background-elevated;
+}
+
+/* Input styles */
+.input {
+  @apply w-full px-4 py-3 bg-background-surface border border-white/10 rounded-xl;
+  @apply text-white placeholder:text-white/40;
+  @apply focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20;
+  @apply transition-all duration-200;
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-primary {
+  @apply bg-primary/20 text-primary-light border border-primary/30;
+}
+
+.badge-secondary {
+  @apply bg-secondary/20 text-secondary-light border border-secondary/30;
+}
+
+.badge-cyan {
+  @apply bg-cyan-500/20 text-cyan-400 border border-cyan-500/30;
+}
+
+/* Section spacing */
+.section {
+  @apply py-24 px-6 md:px-12 lg:px-24;
+}
+
+/* Container */
+.container-custom {
+  @apply max-w-7xl mx-auto;
+}
+
+/* Typography */
+.heading-display {
+  @apply font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight;
+}
+
+.heading-section {
+  @apply font-display text-3xl md:text-4xl lg:text-5xl font-bold;
+}
+
+.heading-subsection {
+  @apply font-display text-xl md:text-2xl font-semibold;
+}
+
+.body-large {
+  @apply text-lg md:text-xl text-white/70;
+}
+
+.body-default {
+  @apply text-base text-white/60;
+}
