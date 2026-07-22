@@ -93,14 +93,13 @@ export default function AgentRunPage({ params }: PageProps) {
         content: m.content
       }));
 
-      // Call our API route
+      // Call our API route (server-side, API key stays hidden)
       const response = await fetch("/api/agent-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           agentSlug: slug,
-          messages: conversationHistory,
-          apiKey: process.env.NEXT_PUBLIC_NVIDIA_API_KEY || "demo"
+          messages: conversationHistory
         }),
       });
 

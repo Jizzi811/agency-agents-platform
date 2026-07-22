@@ -95,10 +95,13 @@ function getModelForAgent(agentSlug: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { agentSlug, messages, apiKey } = body;
+    const { agentSlug, messages } = body;
+
+    // Get API key from server-side environment variable only
+    const apiKey = process.env.NVIDIA_API_KEY;
 
     // If no API key provided, return a demo response
-    if (!apiKey || apiKey === "demo") {
+    if (!apiKey) {
       const lastMessage = messages[messages.length - 1]?.content || "";
       return NextResponse.json({
         response: generateDemoResponse(agentSlug, lastMessage),
