@@ -10,10 +10,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { agentsData, categories } from "@/lib/agents-data";
 
-// Zeige die ersten 12 Agenten als Featured
-const featuredAgents = agentsData.slice(0, 12);
+// Zeige die ersten 100 Agenten als Featured
+const featuredAgents = agentsData;
 
-const categoriesDisplay = categories.slice(0, 6);
+const categoriesDisplay = categories;
 
 const features = [
   {
